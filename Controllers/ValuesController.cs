@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Npgsql;
 
 namespace SampleWebApi.Controllers
 {
@@ -13,7 +14,19 @@ namespace SampleWebApi.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            return new string[] { "value1", "value2" };
+            var dbUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            var connString = dbUrl.GetConnectionString();
+            NpgsqlConnection conn = new NpgsqlConnection(connString);
+            conn.Open();
+
+            NpgsqlCommand command = new NpgsqlCommand("SELECT id, name FROM test;", conn);
+
+            NpgsqlDataReader dr = command.ExecuteReader();
+
+            while (dr.Read())
+            {
+                yield return $"{dr.GetInt64(0)} - {dr.GetString(1)}";
+            }
         }
 
         // GET api/values/5

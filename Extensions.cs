@@ -1,0 +1,21 @@
+using System;
+using System.Net;
+
+namespace SampleWebApi
+{
+    public static class Extensions
+    {
+        public static string GetConnectionString(this string uriString)
+        {
+            var uri = new Uri(uriString);
+            var db = uri.AbsolutePath.Trim('/');
+            var user = WebUtility.UrlDecode(uri.UserInfo.Split(':')[0]);
+            var passwd = WebUtility.UrlDecode(uri.UserInfo.Split(':')[1]);
+            var port = uri.Port > 0 ? uri.Port : 5432;
+            var connStr = string.Format("Server={0};Database={1};User Id={2};Password={3};Port={4}",
+                uri.Host, db, user, passwd, port);
+            return connStr;
+        }
+    }
+}
+
